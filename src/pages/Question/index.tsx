@@ -1,25 +1,34 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Panel } from '@/components/ui/Panel'
 import { getQuestionForDay } from '@/data/journey'
 import { useJourney } from '@/app/providers/JourneyProvider'
 
 export function QuestionPage() {
-  const { currentDay, answers, progress, saveAnswer, supabaseError } = useJourney()
+  const journey = useJourney()
+  return <QuestionForm key={journey.currentDay} {...journey} />
+}
+
+function QuestionForm({ currentDay, answers, progress, saveAnswer }: ReturnType<typeof useJourney>) {
   const currentQuestion = getQuestionForDay(currentDay)
   const storedAnswer = answers[currentDay] ?? ''
   const [answer, setAnswer] = useState(storedAnswer)
   const [isSaved, setIsSaved] = useState(Boolean(storedAnswer))
+  const [isSaving, setIsSaving] = useState(false)
+  const [saveError, setSaveError] = useState<string | null>(null)
 
-  useEffect(() => {
-    setAnswer(storedAnswer)
-    setIsSaved(Boolean(storedAnswer))
-  }, [currentDay, storedAnswer])
-
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!answer.trim()) return
-    saveAnswer(currentDay, answer.trim())
-    setIsSaved(true)
+    setIsSaving(true)
+    setSaveError(null)
+    try {
+      await saveAnswer(currentDay, answer.trim())
+      setIsSaved(true)
+    } catch (reason) {
+      setSaveError(reason instanceof Error ? reason.message : String(reason))
+    } finally {
+      setIsSaving(false)
+    }
   }
 
   return (
@@ -63,9 +72,9 @@ export function QuestionPage() {
 
         <div className="rounded-2xl border border-[var(--line)] bg-[rgba(10,15,22,0.7)] p-5 sm:p-7">
           <label className="mb-3 block font-serif text-2xl text-[var(--text-main)]">Mijn antwoord</label>
-          {supabaseError ? (
+          {saveError ? (
             <p className="mb-4 rounded-xl border border-red-400/40 bg-red-400/10 p-3 text-sm leading-relaxed text-red-200" role="alert">
-              Supabase-melding: {supabaseError}
+              {saveError}
             </p>
           ) : null}
           <textarea
@@ -80,11 +89,11 @@ export function QuestionPage() {
           {isSaved ? <p className="mt-3 text-sm text-[var(--gold-muted)]" role="status">Antwoord opgeslagen</p> : null}
           <button
             type="button"
-            onClick={handleSave}
-            disabled={!answer.trim()}
+            onClick={() => void handleSave()}
+            disabled={!answer.trim() || isSaving}
             className="mt-5 inline-flex w-full justify-center rounded-xl border border-[var(--gold)] bg-[var(--gold)] px-5 py-3 text-sm font-semibold tracking-wide text-[var(--ink)] transition hover:bg-[#e2c394] disabled:cursor-not-allowed disabled:opacity-40"
           >
-            Mijn antwoord opslaan <span className="ml-2">›</span>
+            {isSaving ? 'Opslaan…' : 'Mijn antwoord opslaan'} <span className="ml-2">›</span>
           </button>
         </div>
       </div>

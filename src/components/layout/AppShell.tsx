@@ -1,5 +1,4 @@
-import { NavLink, Outlet, useLocation } from 'react-router-dom'
-import { useAuth } from '@/app/providers/AuthProvider'
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 
 const navItems = [
   { to: '/', label: 'Home' },
@@ -9,8 +8,9 @@ const navItems = [
 ]
 
 export function AppShell() {
-  const { user, signOut } = useAuth()
   const { pathname } = useLocation()
+  const navigate = useNavigate()
+  const settingsOpen = pathname === '/instellingen'
   const isHomeSection = pathname === '/' || pathname === '/vraag' || pathname === '/antwoord'
   const isStoneSection = pathname === '/steen' || pathname === '/transformatie'
 
@@ -41,14 +41,12 @@ export function AppShell() {
           ))}
         </nav>
         <div className="border-t border-[var(--line)] pt-4">
-          <p className="mb-3 hidden truncate px-3 text-[10px] text-[var(--text-subtle)] xl:block">{user?.email}</p>
-          <button
-            type="button"
-            onClick={() => void signOut()}
-            className="flex w-full items-center justify-center gap-3 rounded-lg px-2 py-3 text-xs text-[var(--text-subtle)] transition hover:bg-white/[0.04] hover:text-[var(--text-main)] xl:justify-start xl:px-3"
+          <NavLink
+            to={settingsOpen ? '/' : '/instellingen'}
+            className="flex items-center justify-center gap-3 rounded-lg px-2 py-3 text-xs text-[var(--text-subtle)] transition hover:bg-white/[0.04] hover:text-[var(--text-main)] xl:justify-start xl:px-3"
           >
-            <span>↪</span><span className="hidden xl:inline">Uitloggen</span>
-          </button>
+            <span>{settingsOpen ? '‹' : '⚙'}</span><span className="hidden xl:inline">{settingsOpen ? 'Terug' : 'Instellingen'}</span>
+          </NavLink>
         </div>
       </aside>
 
@@ -65,7 +63,14 @@ export function AppShell() {
             </p>
           </div>
           <div className="flex flex-col items-end gap-2">
-            <p className="text-xs text-[var(--text-subtle)]">{user?.email}</p>
+            <button
+              type="button"
+              onClick={() => navigate(settingsOpen ? '/' : '/instellingen')}
+              aria-label={settingsOpen ? 'Terug naar de reis' : 'Instellingen openen'}
+              className="grid size-10 place-items-center rounded-full border border-[var(--line)] text-[var(--text-main)] transition hover:border-[var(--gold-muted)] hover:text-[var(--gold)]"
+            >
+              {settingsOpen ? '×' : '⚙'}
+            </button>
             <nav className="hidden flex-wrap gap-2 sm:flex">
               {navItems.map((item) => (
                 <NavLink
@@ -83,13 +88,6 @@ export function AppShell() {
                   {item.label}
                 </NavLink>
               ))}
-              <button
-                type="button"
-                onClick={() => void signOut()}
-                className="rounded-full border border-[var(--line)] px-4 py-2 text-sm text-[var(--text-subtle)] transition hover:border-[var(--gold-muted)] hover:text-[var(--text-main)]"
-              >
-                Uitloggen
-              </button>
             </nav>
           </div>
         </div>

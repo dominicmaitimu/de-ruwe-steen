@@ -7,15 +7,35 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
+# Dependencies and build output
+node_modules/
+dist/
+dist-ssr/
 *.local
+
+# Android build files
+android/.gradle/
+android/local.properties
+android/**/build/
+android/captures/
+
+# Android signing credentials - NEVER commit these
+*.jks
+*.keystore
+*.p12
+*.pfx
+key.properties
+keystore.properties
+
+# Environment files and secrets
+.env
+.env.*
+!.env.example
 
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
-.idea
+.idea/
 .DS_Store
 *.suo
 *.ntvs*

@@ -73,23 +73,22 @@ function RotatingStone({ stage, progress }: StoneCanvasProps) {
     texture.repeat.set(textureRepeat, textureRepeat)
     return texture
   }, [textureRepeat])
-  const [uploadedTexture, setUploadedTexture] = useState<Texture | null>(null)
+  const [uploadedTexture, setUploadedTexture] = useState<{ path: string; texture: Texture } | null>(null)
 
   useEffect(() => {
     const loader = new TextureLoader()
-    setUploadedTexture(null)
     const texture = loader.load(texturePath, (loadedTexture) => {
       loadedTexture.colorSpace = SRGBColorSpace
       loadedTexture.wrapS = RepeatWrapping
       loadedTexture.wrapT = RepeatWrapping
       loadedTexture.repeat.set(textureRepeat, textureRepeat)
-      setUploadedTexture(loadedTexture)
+      setUploadedTexture({ path: texturePath, texture: loadedTexture })
     })
 
     return () => texture.dispose()
   }, [texturePath, textureRepeat])
 
-  const stoneTexture = uploadedTexture ?? generatedTexture
+  const stoneTexture = uploadedTexture?.path === texturePath ? uploadedTexture.texture : generatedTexture
   const roughGeometry = useMemo(() => {
     const geometry = new IcosahedronGeometry(1.55, 2)
     const position = geometry.attributes.position

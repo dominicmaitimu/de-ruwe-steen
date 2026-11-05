@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">De Ruwe Steen</string>
+    <string name="title_activity_main">De Ruwe Steen</string>
+    <string name="package_name">com.deruwesteen.app</string>
+    <string name="custom_url_scheme">com.deruwesteen.app</string>
+</resources>

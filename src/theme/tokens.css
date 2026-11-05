@@ -1,0 +1,31 @@
+:root {
+  --background: #f5f1ea;
+  --panel: #fdfbf8;
+  --surface: #f3efe9;
+  --surface-strong: #e8e0d5;
+  --text: #1d2430;
+  --muted: #5f6978;
+  --border: rgba(29, 36, 48, 0.12);
+  --accent: #7a8e67;
+  --accent-strong: #526349;
+  --accent-soft: rgba(122, 142, 103, 0.14);
+  --shadow-soft: 0 20px 38px rgba(19, 22, 28, 0.08);
+  --shadow-strong: 0 24px 58px rgba(19, 22, 28, 0.12);
+  color-scheme: light;
+}
+
+body[data-theme='dark'] {
+  --background: #171b22;
+  --panel: #1d232b;
+  --surface: #222a33;
+  --surface-strong: #2a3642;
+  --text: #edf0f4;
+  --muted: #b0b9c5;
+  --border: rgba(203, 210, 219, 0.12);
+  --accent: #a4b58d;
+  --accent-strong: #dfe9d0;
+  --accent-soft: rgba(164, 181, 141, 0.17);
+  --shadow-soft: 0 26px 42px rgba(5, 7, 10, 0.26);
+  --shadow-strong: 0 28px 54px rgba(5, 7, 10, 0.34);
+  color-scheme: dark;
+}

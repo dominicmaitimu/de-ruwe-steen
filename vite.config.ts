@@ -9,7 +9,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.svg'],
+      includeAssets: ['favicon.svg', 'icons.svg'],
       manifest: {
         name: 'De Ruwe Steen',
         short_name: 'Ruwe Steen',
@@ -20,18 +20,8 @@ export default defineConfig({
         start_url: '/',
         lang: 'nl-NL',
         icons: [
-          {
-            src: '/favicon.svg',
-            sizes: '192x192',
-            type: 'image/svg+xml',
-            purpose: 'any',
-          },
-          {
-            src: '/favicon.svg',
-            sizes: '512x512',
-            type: 'image/svg+xml',
-            purpose: 'any maskable',
-          },
+          { src: '/favicon.svg', sizes: '192x192', type: 'image/svg+xml', purpose: 'any' },
+          { src: '/favicon.svg', sizes: '512x512', type: 'image/svg+xml', purpose: 'any maskable' },
         ],
       },
       workbox: {
@@ -44,5 +34,8 @@ export default defineConfig({
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
+  },
+  optimizeDeps: {
+    exclude: ['jeep-sqlite'],
   },
 })

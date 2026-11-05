@@ -1,3 +1,5 @@
+@import './theme/tokens.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -37,13 +39,27 @@ body {
     linear-gradient(160deg, var(--bg-deep), var(--bg-soft));
 }
 
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+h1,
+h2,
+h3,
+h4,
+p {
+  margin-top: 0;
+}
+
 h1,
 h2,
 h3,
 h4 {
   font-family: 'Cormorant Garamond', Georgia, serif;
   letter-spacing: 0.02em;
-  margin: 0;
 }
 
 a {

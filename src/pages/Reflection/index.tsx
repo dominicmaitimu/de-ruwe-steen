@@ -11,22 +11,32 @@ function formatReflectionDate(createdAt: string) {
 }
 
 export function ReflectionPage() {
-  const { reflections, saveReflection, supabaseError } = useJourney()
+  const { reflections, saveReflection } = useJourney()
   const [text, setText] = useState('')
+  const [saveError, setSaveError] = useState<string | null>(null)
+  const [isSaving, setIsSaving] = useState(false)
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     if (!text.trim()) return
-    saveReflection(text)
-    setText('')
+    setSaveError(null)
+    setIsSaving(true)
+    try {
+      await saveReflection(text)
+      setText('')
+    } catch (reason) {
+      setSaveError(reason instanceof Error ? reason.message : String(reason))
+    } finally {
+      setIsSaving(false)
+    }
   }
 
   return (
     <div className="space-y-5">
       <Panel title="Reflectie" subtitle="Leg vast wat je onderweg opvalt.">
-        {supabaseError ? (
+        {saveError ? (
           <p className="mb-4 rounded-xl border border-red-400/40 bg-red-400/10 p-3 text-sm leading-relaxed text-red-200" role="alert">
-            Supabase-melding: {supabaseError}
+            {saveError}
           </p>
         ) : null}
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -41,10 +51,10 @@ export function ReflectionPage() {
           <div className="flex justify-end">
             <button
               type="submit"
-              disabled={!text.trim()}
+              disabled={!text.trim() || isSaving}
               className="rounded-xl border border-[var(--gold)] bg-[var(--gold)] px-5 py-3 text-sm font-semibold tracking-wide text-[var(--ink)] transition hover:bg-[#e2c394] disabled:cursor-not-allowed disabled:opacity-40"
             >
-              Reflectie plaatsen
+              {isSaving ? 'Opslaan…' : 'Reflectie plaatsen'}
             </button>
           </div>
         </form>

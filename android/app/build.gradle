@@ -1,0 +1,92 @@
+apply plugin: 'com.android.application'
+
+android {
+    namespace = "com.deruwesteen.app"
+    compileSdk = rootProject.ext.compileSdkVersion
+    defaultConfig {
+        applicationId "com.deruwesteen.app"
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode 1
+        versionName "1.0.0"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        aaptOptions {
+             // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
+             // Default: https://android.googlesource.com/platform/frameworks/base/+/282e181b58cf72b6ca770dc7ca5f91f135444502/tools/aapt/AaptAssets.cpp#61
+            ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
+        }
+    }
+    signingConfigs {
+        release {
+            def storePath = System.getenv('DERUWESTEEN_RELEASE_STORE_FILE')
+            def storePasswordValue = System.getenv('DERUWESTEEN_RELEASE_STORE_PASSWORD')
+            def keyAliasValue = System.getenv('DERUWESTEEN_RELEASE_KEY_ALIAS')
+            def keyPasswordValue = System.getenv('DERUWESTEEN_RELEASE_KEY_PASSWORD')
+            if (storePath && storePasswordValue && keyAliasValue && keyPasswordValue) {
+                storeFile file(storePath)
+                storePassword storePasswordValue
+                keyAlias keyAliasValue
+                keyPassword keyPasswordValue
+            }
+        }
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            if (System.getenv('DERUWESTEEN_RELEASE_STORE_FILE')
+                && System.getenv('DERUWESTEEN_RELEASE_STORE_PASSWORD')
+                && System.getenv('DERUWESTEEN_RELEASE_KEY_ALIAS')
+                && System.getenv('DERUWESTEEN_RELEASE_KEY_PASSWORD')) {
+                signingConfig signingConfigs.release
+            }
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+tasks.register('validateReleaseSigning') {
+    doLast {
+        def signingValues = [
+            System.getenv('DERUWESTEEN_RELEASE_STORE_FILE'),
+            System.getenv('DERUWESTEEN_RELEASE_STORE_PASSWORD'),
+            System.getenv('DERUWESTEEN_RELEASE_KEY_ALIAS'),
+            System.getenv('DERUWESTEEN_RELEASE_KEY_PASSWORD'),
+        ]
+        if (signingValues.any { !it }) {
+            throw new GradleException('Set all DERUWESTEEN_RELEASE_* signing environment variables to build a release APK.')
+        }
+    }
+}
+
+tasks.matching { it.name == 'preReleaseBuild' }.configureEach {
+    dependsOn tasks.named('validateReleaseSigning')
+}
+
+repositories {
+    flatDir{
+        dirs '../capacitor-cordova-android-plugins/src/main/libs', 'libs'
+    }
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation "androidx.appcompat:appcompat:$androidxAppCompatVersion"
+    implementation "androidx.coordinatorlayout:coordinatorlayout:$androidxCoordinatorLayoutVersion"
+    implementation "androidx.core:core-splashscreen:$coreSplashScreenVersion"
+    implementation project(':capacitor-android')
+    testImplementation "junit:junit:$junitVersion"
+    androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
+    androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
+    implementation project(':capacitor-cordova-android-plugins')
+}
+
+apply from: 'capacitor.build.gradle'
+
+try {
+    def servicesJSON = file('google-services.json')
+    if (servicesJSON.text) {
+        apply plugin: 'com.google.gms.google-services'
+    }
+} catch(Exception e) {
+    logger.info("google-services.json not found, google-services plugin not applied. Push Notifications won't work")
+}
